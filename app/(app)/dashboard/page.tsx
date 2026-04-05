@@ -18,11 +18,6 @@ export default async function DashboardPage() {
   const isPrivileged = profile?.role === 'admin' || profile?.role === 'controller'
   const isAdmin      = profile?.role === 'admin'
 
-  // Stats — admins see all, users see own
-  const baseQuery = isPrivileged
-    ? supabase.from('payments')
-    : supabase.from('payments').eq('created_by', user!.id)
-
   const [
     { count: total },
     { count: pending },
