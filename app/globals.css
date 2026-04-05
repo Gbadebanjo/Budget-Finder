@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
+/* Class-based dark mode — toggled by adding .dark to <html> */
+@variant dark (&:where(.dark, .dark *));
+
+/* ── Design tokens ─────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg:           #f8fafc;
+  --surface:      #ffffff;
+  --surface-alt:  #f1f5f9;
+  --border:       #e2e8f0;
+  --border-soft:  #f1f5f9;
+  --text:         #0f172a;
+  --text-muted:   #64748b;
+  --text-subtle:  #94a3b8;
+  --accent:       #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-light: #eef2ff;
+}
+
+.dark {
+  --bg:           #0c111d;
+  --surface:      #161b27;
+  --surface-alt:  #1e2536;
+  --border:       #2a3347;
+  --border-soft:  #1e2536;
+  --text:         #f1f5f9;
+  --text-muted:   #94a3b8;
+  --text-subtle:  #64748b;
+  --accent:       #6366f1;
+  --accent-hover: #818cf8;
+  --accent-light: #1e1b4b;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-bg:           var(--bg);
+  --color-surface:      var(--surface);
+  --color-surface-alt:  var(--surface-alt);
+  --color-border:       var(--border);
+  --color-border-soft:  var(--border-soft);
+  --color-tx:           var(--text);
+  --color-muted:        var(--text-muted);
+  --color-subtle:       var(--text-subtle);
+  --color-accent:       var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-light: var(--accent-light);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
 }
