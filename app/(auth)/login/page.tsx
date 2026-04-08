@@ -1,16 +1,19 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import ThemeToggle from '@/components/ThemeToggle'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
+
+  const deactivated = searchParams.get('reason') === 'deactivated'
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -58,6 +61,11 @@ export default function LoginPage() {
             onSubmit={handleSubmit}
             className="bg-surface border border-border rounded-2xl p-8 space-y-5 shadow-sm"
           >
+            {deactivated && (
+              <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 text-sm rounded-lg px-4 py-3">
+                Your account has been deactivated. Contact your administrator.
+              </div>
+            )}
             {error && (
               <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm rounded-lg px-4 py-3">
                 {error}

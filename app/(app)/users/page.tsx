@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import UserTable from './UserTable'
 import InviteForm from './InviteForm'
@@ -20,6 +21,15 @@ export default async function UsersPage() {
     .select('*')
     .order('created_at', { ascending: false })
 
+  // Find users who were invited but haven't confirmed yet (confirmed_at is null)
+  const admin = createAdminClient()
+  const { data: { users: authUsers } } = await admin.auth.admin.listUsers()
+  const unconfirmedIds = new Set(
+    authUsers
+      .filter(u => !u.confirmed_at)
+      .map(u => u.id)
+  )
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -30,7 +40,7 @@ export default async function UsersPage() {
         <InviteForm />
       </div>
 
-      <UserTable users={users ?? []} currentUserId={user!.id} />
+      <UserTable users={users ?? []} currentUserId={user!.id} unconfirmedIds={unconfirmedIds} />
     </div>
   )
 }

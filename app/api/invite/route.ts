@@ -33,8 +33,10 @@ export async function POST(request: Request) {
   const admin = createAdminClient()
 
   // Invite creates the auth.users row; the DB trigger auto-creates user_profiles
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
   const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { full_name },
+    redirectTo: `${appUrl}/auth/confirm`,
   })
 
   if (error) {

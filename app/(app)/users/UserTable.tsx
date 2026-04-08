@@ -16,13 +16,18 @@ const roleBadge: Record<Role, string> = {
 export default function UserTable({
   users,
   currentUserId,
+  unconfirmedIds,
 }: {
   users: UserProfile[]
   currentUserId: string
+  unconfirmedIds: Set<string>
 }) {
   const router = useRouter()
-  const [updating, setUpdating] = useState<string | null>(null)
-  const [error, setError]       = useState('')
+  const [updating, setUpdating]   = useState<string | null>(null)
+  const [error, setError]         = useState('')
+  const [deleting, setDeleting]   = useState<string | null>(null)
+  const [resending, setResending] = useState<string | null>(null)
+  const [resent, setResent]       = useState<string | null>(null)
 
   async function updateRole(userId: string, role: Role) {
     setUpdating(userId + 'role')
@@ -34,6 +39,31 @@ export default function UserTable({
       .eq('id', userId)
     if (error) setError(error.message)
     setUpdating(null)
+    router.refresh()
+  }
+
+  async function resendInvite(userId: string, email: string) {
+    setResending(userId)
+    setError('')
+    const res = await fetch('/api/invite/resend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    })
+    const json = await res.json()
+    if (!res.ok) setError(json.error)
+    else { setResent(userId); setTimeout(() => setResent(null), 3000) }
+    setResending(null)
+  }
+
+  async function deleteUser(userId: string) {
+    if (!confirm('Permanently delete this user? This cannot be undone.')) return
+    setDeleting(userId)
+    setError('')
+    const res = await fetch(`/api/users/${userId}`, { method: 'DELETE' })
+    const json = await res.json()
+    if (!res.ok) setError(json.error)
+    setDeleting(null)
     router.refresh()
   }
 
@@ -96,30 +126,69 @@ export default function UserTable({
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      u.is_active
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
-                        : 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300'
-                    }`}>
-                      {u.is_active ? 'Active' : 'Inactive'}
-                    </span>
+                    <div className="flex flex-col gap-1">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium w-fit ${
+                        u.is_active
+                          ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
+                          : 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300'
+                      }`}>
+                        {u.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                      {unconfirmedIds.has(u.id) && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium w-fit bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
+                          Pending setup
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-muted text-xs">
                     {new Date(u.created_at).toLocaleDateString()}
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4">
                     {u.id !== currentUserId && (
-                      <button
-                        onClick={() => toggleActive(u.id, u.is_active)}
-                        disabled={updating === u.id + 'active'}
-                        className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 ${
-                          u.is_active
-                            ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30'
-                            : 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/30'
-                        }`}
-                      >
-                        {updating === u.id + 'active' ? '…' : u.is_active ? 'Deactivate' : 'Activate'}
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        {unconfirmedIds.has(u.id) && (
+                          <button
+                            onClick={() => resendInvite(u.id, u.email)}
+                            disabled={resending === u.id}
+                            title="Resend invitation email"
+                            className="text-xs font-semibold px-3 py-1.5 rounded-lg text-accent hover:bg-accent-light disabled:opacity-50 transition-colors"
+                          >
+                            {resending === u.id ? '…' : resent === u.id ? 'Sent!' : 'Resend Invite'}
+                          </button>
+                        )}
+                        <button
+                          onClick={() => toggleActive(u.id, u.is_active)}
+                          disabled={updating === u.id + 'active'}
+                          className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 ${
+                            u.is_active
+                              ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30'
+                              : 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/30'
+                          }`}
+                        >
+                          {updating === u.id + 'active' ? '…' : u.is_active ? 'Deactivate' : 'Activate'}
+                        </button>
+                        {!u.is_active && (
+                          <button
+                            onClick={() => deleteUser(u.id)}
+                            disabled={deleting === u.id}
+                            title="Delete user permanently"
+                            className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 transition-colors"
+                          >
+                            {deleting === u.id ? (
+                              <span className="text-xs">…</span>
+                            ) : (
+                              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                <path d="M10 11v6M14 11v6"/>
+                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                              </svg>
+                            )}
+                          </button>
+                        )}
+                      </div>
                     )}
                   </td>
                 </tr>

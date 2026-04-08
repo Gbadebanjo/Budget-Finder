@@ -29,12 +29,28 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  if (!user && pathname !== '/login') {
+  const publicPaths = ['/login', '/auth/confirm']
+
+  if (!user && !publicPaths.includes(pathname)) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
   if (user && pathname === '/login') {
     return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
+  // Block deactivated users from accessing the app
+  if (user && !publicPaths.includes(pathname)) {
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('is_active')
+      .eq('id', user.id)
+      .single()
+
+    if (profile && !profile.is_active) {
+      await supabase.auth.signOut()
+      return NextResponse.redirect(new URL('/login?reason=deactivated', request.url))
+    }
   }
 
   return supabaseResponse
