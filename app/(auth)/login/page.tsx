@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import ThemeToggle from '@/components/ThemeToggle'
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [email, setEmail]       = useState('')
@@ -33,6 +33,62 @@ export default function LoginPage() {
   }
 
   return (
+    <form
+      onSubmit={handleSubmit}
+      className="bg-surface border border-border rounded-2xl p-8 space-y-5 shadow-sm"
+    >
+      {deactivated && (
+        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 text-sm rounded-lg px-4 py-3">
+          Your account has been deactivated. Contact your administrator.
+        </div>
+      )}
+      {error && (
+        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm rounded-lg px-4 py-3">
+          {error}
+        </div>
+      )}
+
+      <div className="space-y-1.5">
+        <label className="block text-xs font-medium text-muted uppercase tracking-wide">
+          Email
+        </label>
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          className="w-full rounded-lg border border-border bg-surface-alt px-3 py-2.5 text-sm text-tx placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition"
+          placeholder="you@example.com"
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <label className="block text-xs font-medium text-muted uppercase tracking-wide">
+          Password
+        </label>
+        <input
+          type="password"
+          required
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          className="w-full rounded-lg border border-border bg-surface-alt px-3 py-2.5 text-sm text-tx placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition"
+          placeholder="••••••••"
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-accent text-white rounded-lg py-2.5 text-sm font-semibold hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        {loading ? 'Signing in…' : 'Sign in'}
+      </button>
+    </form>
+  )
+}
+
+export default function LoginPage() {
+  return (
     <div className="min-h-screen bg-bg flex flex-col">
       {/* Top bar */}
       <header className="flex items-center justify-between px-6 py-4">
@@ -57,57 +113,13 @@ export default function LoginPage() {
             <p className="text-muted text-sm mt-2">Sign in to your account to continue</p>
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="bg-surface border border-border rounded-2xl p-8 space-y-5 shadow-sm"
-          >
-            {deactivated && (
-              <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 text-sm rounded-lg px-4 py-3">
-                Your account has been deactivated. Contact your administrator.
-              </div>
-            )}
-            {error && (
-              <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm rounded-lg px-4 py-3">
-                {error}
-              </div>
-            )}
-
-            <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-muted uppercase tracking-wide">
-                Email
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-border bg-surface-alt px-3 py-2.5 text-sm text-tx placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition"
-                placeholder="you@example.com"
-              />
+          <Suspense fallback={
+            <div className="bg-surface border border-border rounded-2xl p-8 text-center text-muted text-sm">
+              Loading…
             </div>
-
-            <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-muted uppercase tracking-wide">
-                Password
-              </label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-border bg-surface-alt px-3 py-2.5 text-sm text-tx placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition"
-                placeholder="••••••••"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-accent text-white rounded-lg py-2.5 text-sm font-semibold hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {loading ? 'Signing in…' : 'Sign in'}
-            </button>
-          </form>
+          }>
+            <LoginForm />
+          </Suspense>
 
           <p className="text-center text-xs text-subtle mt-6">
             Don&apos;t have an account? Contact your administrator.
