@@ -38,9 +38,10 @@ const demoBreakdown = [
 ]
 const demoHeat = Array.from({ length: 120 }, (_, i) => {
   const n = seededNoise(i + 7)
+  // Integer values keep formatting deterministic across Node + browser ICU.
   return {
     date: isoOffset(i),
-    value: n > 0.3 ? n * 15_000 : 0,
+    value: n > 0.3 ? Math.round(n * 15_000) : 0,
   }
 })
 

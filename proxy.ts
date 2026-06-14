@@ -10,8 +10,14 @@ import { NextResponse, type NextRequest } from 'next/server'
  *   - `/api/*`, `/_next/*`, and `favicon.ico` are excluded by the matcher.
  */
 
-const PUBLIC_PAGES = new Set(['/', '/login', '/signup'])
-const AUTH_PAGES   = new Set(['/login', '/signup'])
+const PUBLIC_PAGES = new Set([
+  '/',
+  '/login',
+  '/signup',
+  '/forgot-password',
+  '/auth/confirm',
+])
+const AUTH_PAGES = new Set(['/login', '/signup', '/forgot-password'])
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl

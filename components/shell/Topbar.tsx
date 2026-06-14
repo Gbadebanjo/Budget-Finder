@@ -54,14 +54,13 @@ export function Topbar({ profileName, profileEmail, workspaceName }: TopbarProps
   return (
     <>
       <header className="sticky top-0 z-30 h-16 px-4 sm:px-6 flex items-center justify-between gap-3 border-b border-border bg-surface-glass backdrop-blur-xl">
-        {/* Workspace switcher (read-only for v1) */}
-        <button className="hidden sm:flex items-center gap-2 h-9 px-2.5 rounded-xl hover:bg-surface-alt transition text-sm">
+        {/* Workspace label — no chevron until shared workspaces ship. */}
+        <div className="hidden sm:flex items-center gap-2 h-9 px-2.5 text-sm">
           <span className="h-6 w-6 rounded-md bg-gradient-to-br from-emerald-500 to-teal-500 grid place-items-center text-white text-[10px] font-bold">
             {(workspaceName ?? 'P').slice(0, 1).toUpperCase()}
           </span>
           <span className="font-medium max-w-[160px] truncate">{workspaceName ?? 'Personal'}</span>
-          <Icon name="chevron-down" size={14} className="text-muted" />
-        </button>
+        </div>
 
         {/* Search / palette */}
         <button

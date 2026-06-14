@@ -368,7 +368,13 @@ export function HeatmapCalendar({
               fill={cell.value === 0 ? 'var(--surface-alt)' : 'var(--accent)'}
               opacity={cell.value === 0 ? 1 : op}
             >
-              <title>{cell.label} · {formatMoney(cell.value, currency)}</title>
+              {/*
+                Tooltip is plain text only: Intl number formatting can drift
+                between Node's ICU and the browser's ICU and trigger
+                hydration mismatches on the landing page. The currency arg
+                is kept on the prop so callers don't have to change.
+              */}
+              <title>{cell.label}</title>
             </rect>
           )
         }))}

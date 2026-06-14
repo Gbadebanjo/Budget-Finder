@@ -30,14 +30,6 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Theme bootstrap to avoid FOUC */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.classList.toggle('dark',t==='dark');}catch(e){}})();`,
-          }}
-        />
-      </head>
       <body className={`${inter.variable} ${mono.variable} font-sans min-h-screen bg-bg text-tx antialiased`}>
         <ToastProvider>
           <ToastDispatcher />
