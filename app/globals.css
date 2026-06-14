@@ -1,41 +1,112 @@
 @import "tailwindcss";
 
-/* Class-based dark mode — toggled by adding .dark to <html> */
+/* Class-based dark mode */
 @variant dark (&:where(.dark, .dark *));
 
-/* ── Design tokens ─────────────────────────────────────── */
+/* ── Design tokens — Stripe/Apple glass ─────────────────── */
 :root {
-  --bg:           #f8fafc;
+  /* Surfaces */
+  --bg:           #fafafa;
+  --bg-grad-1:    #ffffff;
+  --bg-grad-2:    #f5f3ff;
+  --bg-grad-3:    #ecfeff;
   --surface:      #ffffff;
-  --surface-alt:  #f1f5f9;
-  --border:       #e2e8f0;
-  --border-soft:  #f1f5f9;
-  --text:         #0f172a;
-  --text-muted:   #64748b;
-  --text-subtle:  #94a3b8;
+  --surface-alt:  #f4f4f5;
+  --surface-glass: rgba(255,255,255,0.72);
+  --surface-glass-strong: rgba(255,255,255,0.88);
+
+  /* Borders & dividers */
+  --border:       #e4e4e7;
+  --border-soft:  #f1f1f4;
+  --ring:         rgba(79,70,229,0.18);
+
+  /* Text */
+  --text:         #09090b;
+  --text-muted:   #52525b;
+  --text-subtle:  #a1a1aa;
+
+  /* Brand */
   --accent:       #4f46e5;
   --accent-hover: #4338ca;
-  --accent-light: #eef2ff;
+  --accent-soft:  #eef2ff;
+  --accent-fg:    #ffffff;
+
+  /* Semantic */
+  --success:      #059669;
+  --success-soft: #d1fae5;
+  --danger:       #e11d48;
+  --danger-soft:  #ffe4e6;
+  --warning:      #d97706;
+  --warning-soft: #fef3c7;
+  --info:         #0284c7;
+  --info-soft:    #e0f2fe;
+
+  /* Money color (positive credit / negative debit) */
+  --money-up:     #059669;
+  --money-down:   #e11d48;
+
+  /* Shadows */
+  --shadow-xs:    0 1px 2px rgba(15,15,25,0.04);
+  --shadow-sm:    0 2px 6px rgba(15,15,25,0.06), 0 1px 2px rgba(15,15,25,0.04);
+  --shadow-md:    0 8px 24px rgba(15,15,25,0.08), 0 2px 6px rgba(15,15,25,0.04);
+  --shadow-lg:    0 24px 60px rgba(15,15,25,0.12), 0 4px 12px rgba(15,15,25,0.06);
+  --shadow-glow:  0 0 0 1px rgba(79,70,229,0.18), 0 8px 24px rgba(79,70,229,0.18);
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius:    12px;
+  --radius-lg: 18px;
+  --radius-xl: 28px;
 }
 
 .dark {
-  --bg:           #0c111d;
-  --surface:      #161b27;
-  --surface-alt:  #1e2536;
-  --border:       #2a3347;
-  --border-soft:  #1e2536;
-  --text:         #f1f5f9;
-  --text-muted:   #94a3b8;
-  --text-subtle:  #64748b;
-  --accent:       #6366f1;
-  --accent-hover: #818cf8;
-  --accent-light: #1e1b4b;
+  --bg:           #07070b;
+  --bg-grad-1:    #0a0a14;
+  --bg-grad-2:    #0d0a1e;
+  --bg-grad-3:    #08111a;
+  --surface:      #111118;
+  --surface-alt:  #18181f;
+  --surface-glass: rgba(20,20,28,0.62);
+  --surface-glass-strong: rgba(20,20,28,0.86);
+
+  --border:       #27272e;
+  --border-soft:  #1c1c22;
+  --ring:         rgba(129,140,248,0.32);
+
+  --text:         #fafafa;
+  --text-muted:   #a1a1aa;
+  --text-subtle:  #71717a;
+
+  --accent:       #818cf8;
+  --accent-hover: #a5b4fc;
+  --accent-soft:  rgba(99,102,241,0.16);
+  --accent-fg:    #0a0a14;
+
+  --success:      #34d399;
+  --success-soft: rgba(16,185,129,0.16);
+  --danger:       #fb7185;
+  --danger-soft:  rgba(244,63,94,0.18);
+  --warning:      #fbbf24;
+  --warning-soft: rgba(245,158,11,0.18);
+  --info:         #38bdf8;
+  --info-soft:    rgba(14,165,233,0.16);
+
+  --money-up:     #34d399;
+  --money-down:   #fb7185;
+
+  --shadow-xs:    0 1px 2px rgba(0,0,0,0.4);
+  --shadow-sm:    0 2px 6px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md:    0 8px 24px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.35);
+  --shadow-lg:    0 24px 60px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.35);
+  --shadow-glow:  0 0 0 1px rgba(129,140,248,0.4), 0 8px 24px rgba(129,140,248,0.22);
 }
 
 @theme inline {
   --color-bg:           var(--bg);
   --color-surface:      var(--surface);
   --color-surface-alt:  var(--surface-alt);
+  --color-surface-glass:        var(--surface-glass);
+  --color-surface-glass-strong: var(--surface-glass-strong);
   --color-border:       var(--border);
   --color-border-soft:  var(--border-soft);
   --color-tx:           var(--text);
@@ -43,10 +114,102 @@
   --color-subtle:       var(--text-subtle);
   --color-accent:       var(--accent);
   --color-accent-hover: var(--accent-hover);
-  --color-accent-light: var(--accent-light);
+  --color-accent-soft:  var(--accent-soft);
+  --color-accent-fg:    var(--accent-fg);
+  --color-success:      var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger:       var(--danger);
+  --color-danger-soft:  var(--danger-soft);
+  --color-warning:      var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-info:         var(--info);
+  --color-info-soft:    var(--info-soft);
+  --color-money-up:     var(--money-up);
+  --color-money-down:   var(--money-down);
+
+  --radius-sm: 8px;
+  --radius:    12px;
+  --radius-lg: 18px;
+  --radius-xl: 28px;
 }
 
+/* ── Base ──────────────────────────────────────────────── */
+* { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+html, body { height: 100%; }
 body {
   background-color: var(--bg);
   color: var(--text);
+  font-feature-settings: 'cv11', 'ss01';
+}
+
+/* Soft brand gradient backdrop for app shell */
+.app-backdrop {
+  background:
+    radial-gradient(1200px 600px at 12% -8%, var(--bg-grad-2), transparent 60%),
+    radial-gradient(900px 500px at 92% -12%, var(--bg-grad-3), transparent 50%),
+    var(--bg);
+}
+
+/* ── Glass surface ────────────────────────────────────── */
+.glass {
+  background: var(--surface-glass);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.glass-strong {
+  background: var(--surface-glass-strong);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+}
+
+/* Numeric / money */
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Scrollbar polish */
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; border: 3px solid transparent; background-clip: padding-box; }
+*::-webkit-scrollbar-thumb:hover { background: var(--text-subtle); background-clip: padding-box; }
+
+/* Focus ring */
+.ring-brand:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--ring);
+}
+
+/* Subtle animated grid (dashboard hero) */
+.hero-grid {
+  background-image:
+    linear-gradient(var(--border-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+}
+
+/* Count-up on stats: simple fade-in */
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.pop-in { animation: pop-in 360ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.fade-in { animation: fade-in 220ms ease-out both; }
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, var(--surface-alt) 0%, var(--border) 50%, var(--surface-alt) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
 }

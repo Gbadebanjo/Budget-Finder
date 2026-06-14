@@ -1,8 +1,25 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+/**
+ * Next 16's renamed middleware entrypoint.
+ *
+ * Routing model:
+ *   - Public pages: `/`, `/login`, `/signup` (auth pages bounce signed-in users away).
+ *   - Everything else this matcher hits is treated as protected.
+ *   - `/api/*`, `/_next/*`, and `favicon.ico` are excluded by the matcher.
+ */
+
+const PUBLIC_PAGES = new Set(['/', '/login', '/signup'])
+const AUTH_PAGES   = new Set(['/login', '/signup'])
+
 export async function proxy(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request })
+  const { pathname } = request.nextUrl
+
+  // Landing is fully public — skip the Supabase Auth roundtrip entirely.
+  if (pathname === '/') return NextResponse.next({ request })
+
+  let response = NextResponse.next({ request })
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,9 +33,9 @@ export async function proxy(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           )
-          supabaseResponse = NextResponse.next({ request })
+          response = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            response.cookies.set(name, value, options)
           )
         },
       },
@@ -27,33 +44,19 @@ export async function proxy(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { pathname } = request.nextUrl
-
-  const publicPaths = ['/login', '/auth/confirm']
-
-  if (!user && !publicPaths.includes(pathname)) {
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
-
-  if (user && pathname === '/login') {
+  // Signed-in users shouldn't see /login or /signup.
+  if (user && AUTH_PAGES.has(pathname)) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // Block deactivated users from accessing the app
-  if (user && !publicPaths.includes(pathname)) {
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('is_active')
-      .eq('id', user.id)
-      .single()
-
-    if (profile && !profile.is_active) {
-      await supabase.auth.signOut()
-      return NextResponse.redirect(new URL('/login?reason=deactivated', request.url))
-    }
+  // Unauthenticated users can't reach protected pages.
+  if (!user && !PUBLIC_PAGES.has(pathname)) {
+    const url = new URL('/login', request.url)
+    if (pathname !== '/dashboard') url.searchParams.set('next', pathname)
+    return NextResponse.redirect(url)
   }
 
-  return supabaseResponse
+  return response
 }
 
 export const config = {
